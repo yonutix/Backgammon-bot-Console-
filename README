@@ -1,0 +1,62 @@
+Proiectarea algoritmilor
+Tema 2
+Mihai Cosmin 322CC
+
+Tema se compileaza cu make build, exemplu rulare: make IP="127.0.0.1" PORT="10000" run.
+Documentatia poate fi generata cu doxygen.
+Dupa testele mele botul ar trebui sa bata inclusiv botul 8.Se poate intampla totusi sa am 2 infrangeri la rand, sper sa nu am ghinion.
+
+Am folosit 2 clase: Connection, AI
+Connection este o interfata intre scheletul de cod pus la dispozitie pentru tema si algoritmul botului.
+
+Clasa AI este practic tema.
+In construcotr "asez" piesele pe tabla, stabilesc conexiunea(aflu ce culoare sunt, intializez istoricul, aloc memorie 
+pentru bufferul in care citesc) Folosesc doua buffere din motive de simplitate in implementare, as fi putut folosi unul.
+
+In destructor eliberez memoria bufferului si a linkului catre clasa cu conexiunea.
+
+Tot algoritmul se desfasoara in metoda mainloop().
+In mainloop() exista un while care se termina doar atunci cand pierd sau castig.
+La fiecare pas citesc mesajul, il convertesc astfel incat sa joc mereu cu negrul(am ales asa ca sa merg crescator, as fi
+ putut alege la fel de bine albul).
+Sincronizez tabla cu mutarea oponentului.
+Generez toate mutarile posibile.
+Filtrez mutarile si o aleg pe cea mai buna in functie de o evaluare.
+Convertesc mutarea in caz ca oponentul e negru.
+Trimit mesajul.
+
+                            Iesi
+                             ^
+                             | Da
+________________    _________|_______      ____________    ________________     ___________________    _________________
+|               |   |               | Nu  |           |    |              |     |                 |    |               |
+| Primire mesaj |-> | Final joc     |---->| Conversie |--->| Sincronizare |---->| generare mutari |--->| Aflare cea mai|
+|_______________|   |_______________|     |___________|    |    tabla     |     |    posibile     |    |   buna mutare |
+          ^                                                |______________|     |_________________|    |_______________|
+          |
+          |____________________
+    _____________    __________|_______
+    |           |    |                |
+--->| Conversie |--->| Trimitere mesaj|
+    |___________|    |________________|
+
+
+Dintre segmentele de mai sus, generarea mutarilor si aflarea celei mai bune mutari sunt cele mai complexe.
+Pentru generarea mutarilor sunt doua cazuri: zaruri diferite, dubla.
+Generez intai mutari posibilie pentru un singur zar.
+Aici tin cont de faptul ca tabla se poate afla in 3 stari:piesele se afla in casa(pot fi scoase), o piesa e pe bara(ea 
+trebuie mutata prima(sau mai multe)), sau piesele nu sunt pe bara si se afla si in afara casei.
+Pentru fiecare din aceste cazuri generez mutarile posibile pentru un singur zar.
+Apoi pentru fiecare mutare generata pentru primul zar mut piesele conform primei mutari , in acest timp se incarca si
+istoricul.Apoi generez toate mutarile cu al 2-lea zar, procedeul continua daca numarul maxim sunt 4 mutari.
+Pentru cazul dublei , pentru istoric ideal ar fi fost folosirea unei stive, dar din motiv de simplitate a implementarii
+am ales 3 vectori locali in loc de o stiva de vectori.
+
+Pentru alegerea celei mai bune mutari folosesc o serie de functii care se combina in functia getBestMove.
+Verific fiecare mutare in parte.
+Exista 2 cazuri: Daca am poarta in casa e mai important sa oponentul sa aiba piese pe bara pentru ca exista o probabilitate mica sa le scoata, altfel e mai important sa am piesele acoperite.
+Apoi aflu maximul de piese acoperite, daca exista mai multe mutari cu acelasi numar de piese acoperite, aflu maximul scorului.
+Scorul il caculez astfel:
+Daca nu exista piese care se pot ataca, nu mai conteaza acoperirea, doar scorul.
+Daca albul are poarta in casa e mai important sa fie mutate piesele avansate ca sa-mi fac si eu poarta in casa, altfel sunt mutate omogen.
+
