@@ -1,62 +1,56 @@
-Proiectarea algoritmilor
-Tema 2
+Algorithms design
+Homework 2
 Mihai Cosmin 322CC
 
-Tema se compileaza cu make build, exemplu rulare: make IP="127.0.0.1" PORT="10000" run.
-Documentatia poate fi generata cu doxygen.
-Dupa testele mele botul ar trebui sa bata inclusiv botul 8.Se poate intampla totusi sa am 2 infrangeri la rand, sper sa nu am ghinion.
 
-Am folosit 2 clase: Connection, AI
-Connection este o interfata intre scheletul de cod pus la dispozitie pentru tema si algoritmul botului.
+The homework can be compiled with make build, run example: make IP="127.0.0.1 PORT="10000" run" .
+The documantation can be generated with Doxygen.
+After my tests the bot should beat every bot.
+I used two clases: Connection, AI.
+Connection is an interface between the code skeleton made available and the bot algorithm.
+Basically the AI class is the homework.
+In the constructor I initialize the table and I establish the connection.
+In destructor I free the buffer and the link memory.
+Entire algorithm is happening in the mainloop() method.
+In mainloop() exists a while which finishes only when I lose or win.
+At each step I read the message, I convert it so I can always play with black(I have chosen that way to move ascending,  I could also use white).
+I syncronize the table with the opponent move.
+I generate all the possible moves.
+I filter the moves and I choose the best one based on an evaluation.
+I convert the move if the opponent is black.
+I send the message.
 
-Clasa AI este practic tema.
-In construcotr "asez" piesele pe tabla, stabilesc conexiunea(aflu ce culoare sunt, intializez istoricul, aloc memorie 
-pentru bufferul in care citesc) Folosesc doua buffere din motive de simplitate in implementare, as fi putut folosi unul.
 
-In destructor eliberez memoria bufferului si a linkului catre clasa cu conexiunea.
-
-Tot algoritmul se desfasoara in metoda mainloop().
-In mainloop() exista un while care se termina doar atunci cand pierd sau castig.
-La fiecare pas citesc mesajul, il convertesc astfel incat sa joc mereu cu negrul(am ales asa ca sa merg crescator, as fi
- putut alege la fel de bine albul).
-Sincronizez tabla cu mutarea oponentului.
-Generez toate mutarile posibile.
-Filtrez mutarile si o aleg pe cea mai buna in functie de o evaluare.
-Convertesc mutarea in caz ca oponentul e negru.
-Trimit mesajul.
 
                             Iesi
                              ^
                              | Da
 ________________    _________|_______      ____________    ________________     ___________________    _________________
 |               |   |               | Nu  |           |    |              |     |                 |    |               |
-| Primire mesaj |-> | Final joc     |---->| Conversie |--->| Sincronizare |---->| generare mutari |--->| Aflare cea mai|
-|_______________|   |_______________|     |___________|    |    tabla     |     |    posibile     |    |   buna mutare |
+|Message income |-> | Game over     |---->|Conversion |--->| Board        |---->|possible moves   |--->| Best move     |
+|_______________|   |_______________|     |___________|    |Syncronization|     |   generation    |    |   filtering   |
           ^                                                |______________|     |_________________|    |_______________|
           |
           |____________________
     _____________    __________|_______
     |           |    |                |
---->| Conversie |--->| Trimitere mesaj|
+--->|Conversion |--->|Message sending |
     |___________|    |________________|
 
-
-Dintre segmentele de mai sus, generarea mutarilor si aflarea celei mai bune mutari sunt cele mai complexe.
-Pentru generarea mutarilor sunt doua cazuri: zaruri diferite, dubla.
-Generez intai mutari posibilie pentru un singur zar.
-Aici tin cont de faptul ca tabla se poate afla in 3 stari:piesele se afla in casa(pot fi scoase), o piesa e pe bara(ea 
-trebuie mutata prima(sau mai multe)), sau piesele nu sunt pe bara si se afla si in afara casei.
-Pentru fiecare din aceste cazuri generez mutarile posibile pentru un singur zar.
-Apoi pentru fiecare mutare generata pentru primul zar mut piesele conform primei mutari , in acest timp se incarca si
-istoricul.Apoi generez toate mutarile cu al 2-lea zar, procedeul continua daca numarul maxim sunt 4 mutari.
-Pentru cazul dublei , pentru istoric ideal ar fi fost folosirea unei stive, dar din motiv de simplitate a implementarii
-am ales 3 vectori locali in loc de o stiva de vectori.
-
-Pentru alegerea celei mai bune mutari folosesc o serie de functii care se combina in functia getBestMove.
-Verific fiecare mutare in parte.
-Exista 2 cazuri: Daca am poarta in casa e mai important sa oponentul sa aiba piese pe bara pentru ca exista o probabilitate mica sa le scoata, altfel e mai important sa am piesele acoperite.
-Apoi aflu maximul de piese acoperite, daca exista mai multe mutari cu acelasi numar de piese acoperite, aflu maximul scorului.
-Scorul il caculez astfel:
-Daca nu exista piese care se pot ataca, nu mai conteaza acoperirea, doar scorul.
-Daca albul are poarta in casa e mai important sa fie mutate piesele avansate ca sa-mi fac si eu poarta in casa, altfel sunt mutate omogen.
+Between segments above, "possible moves generation" and "Best move filtering" are the most complex.
+For possbile moves generation there are two possible cases: equal or unequal dices.
+First I generate possible moves for a single dice. Here I take into account that the table can be in three different states:
+-Pieces are in the "house"(can be eliminated)
+-At least one piece taken out by the opponent (It must be moved first)
+-None of above cases
+Then for each move generated earlier,  I move the pieces for the first move, the history stores the move. After that I generate all the moves for the second dice,the procedure continues if the maximum number of moves is four.
+For equal dices, for a perfect history implementation I should have used a stack, but for reasons of simplicity I chose 3 local arrays and not a stack of arrays.
+To filter the best move I use series of functions used in getBestMove function.
+I check each move and I take decisions based on the game strategy, here is not about the programming strategy anymore, but about the knowledge of the game.
+I think that there are two cases: If I have "home gate" is more important that the opponent to have pieces out of the game because
+there is a small possibility to take them back in the game, otherwise is important to have as much as possible "covered" pieces.
+After that I calculate the maximum of covered pieces, if there are several moves with the same "covered" pieces I choose the maximum score.
+I calculate the score like this: If there are no pieces that can be attacked the cover is not a priority anymore, just the score.
+If the white player has "house gate" I try to make my "house gate" , thus is more important to move the advanced pieces, otherwise
+I move them homogeneous.
 
